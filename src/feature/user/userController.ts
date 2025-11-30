@@ -67,3 +67,64 @@ export const createUser = async (req: Request, res: Response, _next: NextFunctio
         })
     }
 }
+
+export const loginUser = async (req: Request, res: Response, _next: NextFunction) => {
+    try {
+        const { email, password } = req.body;
+
+        // validation
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required"
+            })
+        }
+
+        // database call
+        const existUser = await User.findOne({ email })
+
+        if (!existUser) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found"
+            })
+        }
+
+        // password compare
+        const isPasswordMatched = await bcrypt.compare(password, existUser.password)
+
+        if (!isPasswordMatched) {
+            return res.status(400).json({
+                success: false,
+                message: "Username or password is incorrect"
+            })
+        }
+
+        // Token generation or payload
+        const token = jwt.sign(
+            { sub: existUser._id },
+            config.JWT_SECRET as string,
+            {
+                expiresIn: "1h"
+            }
+        )
+
+        // password remove before sending response
+        // const {password: _pass, ...userWithoutPassword } = existUser.toObject();
+        return res.status(200).json({
+            success: true,
+            message: "User logged in successfully",
+            data: {
+                user: existUser,
+                accessToken: token
+            }
+        })
+    } catch (error) {
+        console.error("Error in loginUser: ", error)
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}
+
