@@ -13,6 +13,7 @@ app.use("/api", ApiRouter);
 // Health Check
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({
+    success: true,
     message: "Health Check"
   })
 })
