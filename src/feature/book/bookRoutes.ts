@@ -15,7 +15,7 @@ bookRouter.route("/createBook").post(multerMiddleware.fields(
             maxCount: 1
         }
     ]
-), createBook); 
+), createBook);
 
 // bookRouter.route("/getAllBooks").get();
 // bookRouter.route("/getBookById/:id").get();
